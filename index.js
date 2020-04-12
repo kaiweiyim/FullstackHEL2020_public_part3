@@ -4,6 +4,16 @@ const cors = require('cors')
 const app = express()
 app.use(cors())
 app.use(express.json())
+
+morgan.token('content',(req,res)=>{
+    if (req.method === 'POST'){
+        return JSON.stringify(req.body)
+    }else{
+        return ''
+    }
+    
+})
+
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :content'))
 
 
@@ -30,6 +40,8 @@ let persons = [
     }
 ]
 
+
+
 const generateId = () => {
     const id = Math.floor(Math.random() * Math.floor(1000000000000))
     return id
@@ -40,12 +52,12 @@ res.send('<h1>Hello World!</h1>')
 })
 
 app.get('/api/persons', (req, res) => {
-res.json(persons)
+
+    res.json(persons)
 })
 
 app.get('/info', (req, res) => {
     const msg = `<p>Phonebook has info for ${persons.length} people</p><p>${new Date()}</p>`
-
     res.send(msg)
     })
 
@@ -76,9 +88,6 @@ app.post('/api/persons',(req,res) => {
         number:body.number,
         id:generateId()
     } 
-    morgan.token('content',(req,res)=>{
-        return JSON.stringify(req.body)
-    })
     persons = persons.concat(person)
     res.json(person)
 
@@ -92,8 +101,8 @@ app.delete('/api/persons/:id',(req,res) => {
     
 })
 
-
-const PORT = process.env.PORT || 3001
+//process.env.PORT || 
+const PORT = 3001
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
