@@ -62,37 +62,14 @@ app.get('/api/persons/:id', (req, res,next) => {
 
 app.post('/api/persons',(req,res,next) => {
     const body = req.body
-    if (!body.name || !body.number ){
-        return res.status(400).json({ 
-            error: 'content missing' 
-          })
-    }
-
-    Person.find({name:body.name}).then(result=>{
-        if (result.length>0){
-            const id = result.find(obj => obj !== obj._id)._id.toString()
-            const person = {
-                name : body.name,
-                number : body.number
-            }
-            Person.findByIdAndUpdate(id,person,{new:true})
-            .then(updatedPerson => {
-                res.json(updatedPerson.toJSON())
-            })
-            .catch(error => next(error))
-        }else{
-            const person = new Person({
-                name:body.name,
-                number:body.number,
-            }) 
-            person.save().then(savedPerson => {
-                res.json(savedPerson.toJSON())
-            })
-            .catch(error => next(error))
-        }
-    
+    const person = new Person({
+        name:body.name,
+        number:body.number,
+    }) 
+    person.save().then(savedPerson => {
+        res.json(savedPerson.toJSON())
     })
-
+    .catch(error => next(error))
     
 })
 
@@ -134,8 +111,9 @@ const errorHandler = (error, req, res, next) => {
   
     if (error.name === 'CastError' && error.kind === 'ObjectId') {
       return res.status(400).send({ error: 'malformatted id' })
-    } 
-  
+    }  else if (error.name === 'ValidationError') {
+        return res.status(400).json({ error: error.message })
+    }
     next(error)
   }
   
@@ -143,8 +121,8 @@ app.use(errorHandler)
 
 
 
-
-const PORT = process.env.PORT 
+//3001
+const PORT =  process.env.PORT || 3001
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
